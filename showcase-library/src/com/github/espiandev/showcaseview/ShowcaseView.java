@@ -16,6 +16,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.text.DynamicLayout;
@@ -363,19 +364,20 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 			super.dispatchDraw(canvas);
 			return;
 		}
-
-		//Bitmap b = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-		Bitmap tmp=null;
+		int x = getMeasuredWidth();
+		int y = getMeasuredHeight();
+		
+		Bitmap b = null;
 		if(getConfigOptions().showcaseId == SWIPE_SHOWCASE)
-			tmp = BitmapFactory.decodeResource(getResources(),R.drawable.swipe_tutorial);
+			b = getNinepatch(R.drawable.swipe_tutorial,x,y,getContext());//BitmapFactory.decodeResource(getResources(),R.drawable.swipe_tutorial);
 		else
-			tmp = BitmapFactory.decodeResource(getResources(),R.drawable.search_tutorial);
-		Bitmap b = Bitmap.createScaledBitmap(tmp, getMeasuredWidth(), getMeasuredHeight(), false);
+			b = getNinepatch(R.drawable.search_tutorial,x,y,getContext());//BitmapFactory.decodeResource(getResources(),R.drawable.search_tutorial);
+		
 		Canvas c = new Canvas(b);
 
 		boolean recalculateText = makeVoidedRect() || mAlteredText;
 		mAlteredText = false;
-		//c.drawColor(backColor); //Overlay
+		
 		if (hideCircle) {
 			showcaseRadius=0;
 		}else {
@@ -395,10 +397,10 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 			//TODO why does this NPE happen?
 			npe.printStackTrace();
 		}
-		tmp.recycle();
+		
 		b.recycle();
 		b = null;
-		tmp = null;
+		
 		if (!TextUtils.isEmpty(mTitleText) || !TextUtils.isEmpty(mSubText)) {
 			if (recalculateText)
 				mBestTextPosition = getBestTextPosition(canvas.getWidth(), canvas.getHeight());
@@ -424,7 +426,22 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 		super.dispatchDraw(canvas);
 
 	}
+	public Bitmap getNinepatch(int id,int x, int y, Context context){
+        // id is a resource id for a valid ninepatch
 
+        Bitmap bitmap = BitmapFactory.decodeResource(
+                context.getResources(), id);
+
+        byte[] chunk = bitmap.getNinePatchChunk();
+        NinePatchDrawable np_drawable = new NinePatchDrawable(getResources(), bitmap,chunk, new Rect(), null);
+        np_drawable.setBounds(0, 0,x, y);
+
+        Bitmap output_bitmap = Bitmap.createBitmap(x, y, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output_bitmap);
+        np_drawable.draw(canvas);
+
+        return output_bitmap;
+    }
 	/**
 	 * Calculates the best place to position text
 	 * @param canvasW width of the screen
