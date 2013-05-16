@@ -540,6 +540,7 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 			mEventListener.onShowcaseViewHide(this);
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			Log.d("famba","hide() SDK_INT newer than HONEYCOMB "+Build.VERSION_CODES.HONEYCOMB);
 			ObjectAnimator oa = ObjectAnimator.ofFloat(this, "alpha", 0f);
 			oa.setDuration(300).addListener(new Animator.AnimatorListener() {
 				@Override
@@ -548,6 +549,7 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 
 				@Override
 				public void onAnimationEnd(Animator animator) {
+					Log.d("famba","hide() SDK_INT more than HONEYCOMB onAnimationEnd");
 					setVisibility(View.GONE);
 				}
 
@@ -561,6 +563,7 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 			});
 			oa.start();
 		} else {
+			Log.d("famba","hide() SDK_INT lower than HONEYCOMB");
 			setVisibility(View.GONE);
 		}
 	}
